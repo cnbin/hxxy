@@ -2,8 +2,8 @@
 //  CustomURLCache.h
 //  LocalCache
 //
-//  Created by tan on 13-2-12.
-//  Copyright (c) 2013年 adways. All rights reserved.
+//  Created by Apple on 11/18/14.
+//  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

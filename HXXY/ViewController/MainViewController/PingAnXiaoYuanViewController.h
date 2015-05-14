@@ -8,6 +8,10 @@
 
 #import "HXBaseViewController.h"
 
-@interface PingAnXiaoYuanViewController : HXBaseViewController
+@interface PingAnXiaoYuanViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate>
+{
+    UITableView * _tableView;
+    UIScrollView *_scrollView;
+}
 
 @end

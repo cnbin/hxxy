@@ -1,14 +1,14 @@
 //
-//  UserTableViewCell.m
+//  userTableViewCell.m
 //  HXXY
 //
-//  Created by Apple on 1/10/15.
+//  Created by Apple on 1/14/15.
 //  Copyright (c) 2015 华讯网络投资有限公司. All rights reserved.
 //
 
-#import "UserTableViewCell.h"
+#import "userTableViewCell.h"
 
-@implementation UserTableViewCell
+@implementation userTableViewCell
 
 - (void)awakeFromNib {
     // Initialization code
@@ -20,4 +20,10 @@
     // Configure the view for the selected state
 }
 
+#pragma mark 设置Cell的边框宽度
+- (void)setFrame:(CGRect)frame {
+    frame.origin.x += 9;
+    frame.size.width -= 2 * 9;
+    [super setFrame:frame];
+}
 @end

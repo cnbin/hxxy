@@ -8,6 +8,10 @@
 
 #import "HXBaseViewController.h"
 
-@interface HomeworkViewController : HXBaseViewController
+@interface HomeworkViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate>
+{
+    UITableView * _tableView;
+    UIScrollView *_scrollView;
+}
 
 @end

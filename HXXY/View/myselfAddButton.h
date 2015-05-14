@@ -10,4 +10,6 @@
 
 @interface myselfAddButton : UIButton
 
+- (void)drawRect:(CGRect)rect;
+
 @end

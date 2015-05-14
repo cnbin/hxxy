@@ -6,8 +6,13 @@
 //  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 //
 
-#import "HXBaseViewController.h"
+#import "TablegGroupViewController.h"
 
-@interface FaXianViewController : HXBaseViewController
+@interface FaXianViewController : TablegGroupViewController
+
+@property (nonatomic,strong) UILabel * labelText;
+@property (nonatomic,strong) UIImageView *faxianImageView;
+@property (nonatomic,strong) UIScrollView  * CellscrollView;
+@property (nonatomic,strong) UIPageControl * pageControl;
 
 @end

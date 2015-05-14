@@ -26,6 +26,20 @@ __strong static WebManagerController *sharedInstance = nil;
     });
     return sharedInstance;
 }
+//限制当前对象创建多实例
+#pragma mark - sengleton setting
++ (id)allocWithZone:(NSZone *)zone {
+    @synchronized(self) {
+        if (sharedInstance == nil) {
+            sharedInstance= [super allocWithZone:zone];
+        }
+    }
+    return sharedInstance;
+}
+
++ (id)copyWithZone:(NSZone *)zone {
+    return self;
+}
 
 
 - (void)viewDidLoad {

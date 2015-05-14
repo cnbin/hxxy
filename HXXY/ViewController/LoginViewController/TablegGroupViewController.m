@@ -16,8 +16,69 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    UIBarButtonItem *buttonImage = [[ UIBarButtonItem alloc ] initWithImage:
+                                    [ UIImage imageNamed: @"nav_backbtn"]
+                                                                      style: UIBarButtonItemStylePlain
+                                                                     target: self
+                                                                     action: @selector(navback:)
+                                    ];
+    self.navigationItem.leftBarButtonItem=buttonImage;
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    CGRect frame = self.view.frame;
+    
+    _tableView = [[UITableView alloc] initWithFrame:frame style:UITableViewStyleGrouped];
+    _tableView.dataSource = self;
+    _tableView.delegate = self;
+    
+    if ([_tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [_tableView setSeparatorInset:UIEdgeInsetsZero];
+    }
+    [self.view addSubview:_tableView];
 }
+
+-(void)navback:(UIButton *)button{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark 返回各个cell的高度
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return 40.f;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 10;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 0.1;
+}
+
+#pragma mark 返回分组个数
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 0;
+}
+
+#pragma mark 返回对应分组的cell个数
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return 0;
+}
+
+#pragma mark 返回cell
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *CellIdentifier  =  @"fristCell";
+    UITableViewCell *cell;
+    cell =[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell =[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+          return cell;
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

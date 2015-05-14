@@ -8,14 +8,32 @@
 
 #import "HXBaseViewController.h"
 #import "TablelistViewController.h"
-//#import "Toast+UIView.h"
-@interface LoginViewController : HXBaseViewController
+
+@class  LoginViewController;
+
+@protocol LoginViewControllerDelegate <NSObject>
+
+-(void)LoginViewController:(LoginViewController *)loginViewController;
+
+@end
+
+@interface LoginViewController : HXBaseViewController<NSXMLParserDelegate,NSURLConnectionDelegate>
 {
     UITextField * phonenumText;
     UITextField * passwordText;
+    UITextField * pswText;
+    
     UIButton *loginButton;
-    UIButton *cancleButton;
-    UIButton *dynamicButton;
+    UIButton * forgetButton;
+    
+    NSString *result;
 }
+
+@property (weak,nonatomic) id<LoginViewControllerDelegate> delegate;
+
+// 当前标签的名字 ,currentTagName 用于存储正在解析的元素名
+@property (strong ,nonatomic) NSString * currentTagName;
+
+@property (strong,nonatomic) NSMutableDictionary * dict;
 
 @end

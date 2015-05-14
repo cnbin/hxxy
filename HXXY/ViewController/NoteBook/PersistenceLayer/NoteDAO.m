@@ -8,251 +8,189 @@
 
 #import "NoteDAO.h"
 
+
 @implementation NoteDAO
 
-
-static NoteDAO *sharedManager = nil;
-
-+ (NoteDAO*)sharedManager
-{
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        
-        sharedManager = [[self alloc] init];
-        [sharedManager createEditableCopyOfDatabaseIfNeeded];
-        
-        
-    });
-    return sharedManager;
-}
-
-
-- (void)createEditableCopyOfDatabaseIfNeeded {
-    
-    NSString *writableDBPath = [self applicationDocumentsDirectoryFile];
-    
-    if (sqlite3_open([writableDBPath UTF8String], &db) != SQLITE_OK) {
-        sqlite3_close(db);
-        NSAssert(NO,@"数据库打开失败。");
-    } else {
-        char *err;
-        NSString *createSQL = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS Note (cdate TEXT PRIMARY KEY, content TEXT);"];
-        if (sqlite3_exec(db,[createSQL UTF8String],NULL,NULL,&err) != SQLITE_OK) {
-            sqlite3_close(db);
-            NSAssert1(NO, @"建表失败, %s", err);
-        }
-        sqlite3_close(db);
-    }
-}
-
-- (NSString *)applicationDocumentsDirectoryFile {
-    NSString *documentDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *path = [documentDirectory stringByAppendingPathComponent:DBFILE_NAME];
-    
-    return path;
-}
-
-
 //插入Note方法
--(int) create:(Note*)model
+-(void) create:(Note*)model
 {
     
-    NSString *path = [self applicationDocumentsDirectoryFile];
+    NSString *path = [HOST_PATH URLEncodedString];
     
-    if (sqlite3_open([path UTF8String], &db) != SQLITE_OK) {
-        sqlite3_close(db);
-        NSAssert(NO,@"数据库打开失败。");
-    } else {
+    NSMutableDictionary *param = [[NSMutableDictionary alloc] init];
+    
+    [param setValue:@"845040571@qq.com" forKey:@"email"];
+    [param setValue:@"JSON" forKey:@"type"];
+    [param setValue:@"add" forKey:@"action"];
+    [param setValue:model.date forKey:@"date"];
+    [param setValue:model.content forKey:@"content"];
+    
+    MKNetworkEngine *engine = [[MKNetworkEngine alloc] initWithHostName:HOST_NAME customHeaderFields:nil];
+    MKNetworkOperation *op = [engine operationWithPath:path params:param httpMethod:@"POST"];
+    
+    [op addCompletionHandler:^(MKNetworkOperation *operation) {
         
-        NSString *sqlStr = @"INSERT OR REPLACE INTO note (cdate, content) VALUES (?,?)";
-        
-        sqlite3_stmt *statement;
-        //预处理过程
-        if (sqlite3_prepare_v2(db, [sqlStr UTF8String], -1, &statement, NULL) == SQLITE_OK) {
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-            NSString *nsdate = [dateFormatter stringFromDate:model.date];
+        NSData *data  = [operation responseData];
+        NSDictionary *resDict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+        NSNumber *resultCodeNumber = [resDict objectForKey:@"ResultCode"];
+        if ([resultCodeNumber integerValue] >=0)
+        {
+            [self.delegate createFinished];
+        } else {
+            NSInteger resultCode = [resultCodeNumber integerValue];
+            NSNumber *resultCodeNumber = [NSNumber numberWithLong:resultCode];
+            NSString* message = [resultCodeNumber errorMessage];
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:message
+                                                                 forKey:NSLocalizedDescriptionKey];
+            NSError *err = [NSError errorWithDomain:@"DAO" code:resultCode userInfo:userInfo];
             
-            //绑定参数开始
-            sqlite3_bind_text(statement, 1, [nsdate UTF8String], -1, NULL);
-            sqlite3_bind_text(statement, 2, [model.content UTF8String], -1, NULL);
-            
-            //执行插入
-            if (sqlite3_step(statement) != SQLITE_DONE) {
-                NSAssert(NO, @"插入数据失败。");
-            }
+            [self.delegate createFailed:err];
         }
         
-        sqlite3_finalize(statement);
-        sqlite3_close(db);
-    }
-    
-    return 0;
+    } errorHandler:^(MKNetworkOperation *errorOp, NSError* err) {
+        NSError *error = [errorOp error];
+        [self.delegate createFailed:error];
+    }];
+    [engine enqueueOperation:op];
 }
 
 //删除Note方法
--(int) remove:(Note*)model
+-(void) remove:(Note*)model
 {
-    NSString *path = [self applicationDocumentsDirectoryFile];
     
-    if (sqlite3_open([path UTF8String], &db) != SQLITE_OK) {
-        sqlite3_close(db);
-        NSAssert(NO,@"数据库打开失败。");
-    } else {
+    NSString *path = [HOST_PATH URLEncodedString];
+    
+    NSMutableDictionary *param = [[NSMutableDictionary alloc] init];
+    
+    [param setValue:@"845040571@qq.com" forKey:@"email"];
+    [param setValue:@"JSON" forKey:@"type"];
+    [param setValue:@"remove" forKey:@"action"];
+    [param setValue:model.ID forKey:@"id"];
+    
+    MKNetworkEngine *engine = [[MKNetworkEngine alloc] initWithHostName:HOST_NAME customHeaderFields:nil];
+    MKNetworkOperation *op = [engine operationWithPath:path params:param httpMethod:@"POST"];
+    
+    [op addCompletionHandler:^(MKNetworkOperation *operation) {
         
-        NSString *sqlStr = @"DELETE  from note where cdate =?";
-        
-        sqlite3_stmt *statement;
-        //预处理过程
-        if (sqlite3_prepare_v2(db, [sqlStr UTF8String], -1, &statement, NULL) == SQLITE_OK) {
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-            NSString *nsdate = [dateFormatter stringFromDate:model.date];
+        NSData *data  = [operation responseData];
+        NSDictionary *resDict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+        NSNumber *resultCodeNumber = [resDict objectForKey:@"ResultCode"];
+        if ([resultCodeNumber integerValue] >=0)
+        {
+            [self.delegate removeFinished];
+        } else {
+            NSInteger resultCode = [resultCodeNumber integerValue];
+            NSNumber *resultCodeNumber = [NSNumber numberWithLong:resultCode];
+            NSString* message = [resultCodeNumber errorMessage];
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:message
+                                                                 forKey:NSLocalizedDescriptionKey];
+            NSError *err = [NSError errorWithDomain:@"DAO" code:resultCode userInfo:userInfo];
             
-            //绑定参数开始
-            sqlite3_bind_text(statement, 1, [nsdate UTF8String], -1, NULL);
-            //执行
-            if (sqlite3_step(statement) != SQLITE_DONE) {
-                NSAssert(NO, @"删除数据失败。");
-            }
+            [self.delegate removeFailed:err];
         }
         
-        sqlite3_finalize(statement);
-        sqlite3_close(db);
-    }
+    } errorHandler:^(MKNetworkOperation *errorOp, NSError* err) {
+        NSError *error = [errorOp error];
+        [self.delegate createFailed:error];
+    }];
     
-    return 0;
+    [engine enqueueOperation:op];
 }
 
 //修改Note方法
--(int) modify:(Note*)model
+-(void) modify:(Note*)model
 {
     
-    NSString *path = [self applicationDocumentsDirectoryFile];
+    NSString *path = [HOST_PATH URLEncodedString];
     
-    if (sqlite3_open([path UTF8String], &db) != SQLITE_OK) {
-        sqlite3_close(db);
-        NSAssert(NO,@"数据库打开失败。");
-    } else {
+    NSMutableDictionary *param = [[NSMutableDictionary alloc] init];
+    [param setValue:@"845040571@qq.com" forKey:@"email"];
+    [param setValue:@"JSON" forKey:@"type"];
+    [param setValue:@"modify" forKey:@"action"];
+    [param setValue:model.ID forKey:@"id"];
+    [param setValue:model.date forKey:@"date"];
+    [param setValue:model.content forKey:@"content"];
+    
+    MKNetworkEngine *engine = [[MKNetworkEngine alloc] initWithHostName:HOST_NAME customHeaderFields:nil];
+    MKNetworkOperation *op = [engine operationWithPath:path params:param httpMethod:@"POST"];
+    
+    [op addCompletionHandler:^(MKNetworkOperation *operation) {
         
-        NSString *sqlStr = @"UPDATE note set content=? where cdate =?";
-        
-        sqlite3_stmt *statement;
-        //预处理过程
-        if (sqlite3_prepare_v2(db, [sqlStr UTF8String], -1, &statement, NULL) == SQLITE_OK) {
+        NSData *data  = [operation responseData];
+        NSDictionary *resDict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+        NSNumber *resultCodeNumber = [resDict objectForKey:@"ResultCode"];
+        if ([resultCodeNumber integerValue] >=0)
+        {
+            [self.delegate modifyFinished];
+        } else {
+            NSInteger resultCode = [resultCodeNumber integerValue];
+            NSNumber *resultCodeNumber = [NSNumber numberWithLong:resultCode];
+            NSString* message = [resultCodeNumber errorMessage];
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:message
+                                                                 forKey:NSLocalizedDescriptionKey];
+            NSError *err = [NSError errorWithDomain:@"DAO" code:resultCode userInfo:userInfo];
             
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-            NSString *nsdate = [dateFormatter stringFromDate:model.date];
-            
-            //绑定参数开始
-            sqlite3_bind_text(statement, 1, [model.content UTF8String], -1, NULL);
-            sqlite3_bind_text(statement, 2, [nsdate UTF8String], -1, NULL);
-            //执行
-            if (sqlite3_step(statement) != SQLITE_DONE) {
-                NSAssert(NO, @"修改数据失败。");
-            }
+            [self.delegate modifyFailed:err];
         }
         
-        sqlite3_finalize(statement);
-        sqlite3_close(db);
-    }
-    return 0;
+    } errorHandler:^(MKNetworkOperation *errorOp, NSError* err) {
+        NSError *error = [errorOp error];
+        [self.delegate createFailed:error];
+    }];
+    
+    [engine enqueueOperation:op];
+    
 }
 
 //查询所有数据方法
--(NSMutableArray*) findAll
+-(void) findAll
 {
+    NSString *path = [HOST_PATH URLEncodedString];
     
-    NSString *path = [self applicationDocumentsDirectoryFile];
-    NSMutableArray *listData = [[NSMutableArray alloc] init];
+    NSMutableDictionary *param = [[NSMutableDictionary alloc] init];
+    [param setValue:@"845040571@qq.com" forKey:@"email"];
+    [param setValue:@"JSON" forKey:@"type"];
+    [param setValue:@"query" forKey:@"action"];
     
-    if (sqlite3_open([path UTF8String], &db) != SQLITE_OK) {
-        sqlite3_close(db);
-        NSAssert(NO,@"数据库打开失败。");
-    } else {
+    MKNetworkEngine *engine = [[MKNetworkEngine alloc] initWithHostName:HOST_NAME customHeaderFields:nil];
+    MKNetworkOperation *op = [engine operationWithPath:path params:param httpMethod:@"POST"];
+    
+    [op addCompletionHandler:^(MKNetworkOperation *operation) {
         
-        NSString *qsql = @"SELECT cdate,content FROM Note";
-        
-        sqlite3_stmt *statement;
-        //预处理过程
-        if (sqlite3_prepare_v2(db, [qsql UTF8String], -1, &statement, NULL) == SQLITE_OK) {
+        NSData *data  = [operation responseData];
+        NSDictionary *resDict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+        NSNumber *resultCodeNumber = [resDict objectForKey:@"ResultCode"];
+        if ([resultCodeNumber integerValue] >=0)
+        {
+            NSMutableArray* listDict = [resDict objectForKey:@"Record"];
             
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            NSMutableArray *listData = [NSMutableArray new];
             
-            //执行
-            while (sqlite3_step(statement) == SQLITE_ROW) {
-                char *cdate = (char *) sqlite3_column_text(statement, 0);
-                NSString *nscdate = [[NSString alloc] initWithUTF8String: cdate];
-                
-                char *content = (char *) sqlite3_column_text(statement, 1);
-                NSString * nscontent = [[NSString alloc] initWithUTF8String: content];
-                
-                Note* note = [[Note alloc] init];
-                note.date = [dateFormatter dateFromString:nscdate];
-                note.content = nscontent;
-                
+            for (NSDictionary* dic in listDict) {
+                Note *note = [Note new];
+                note.ID = [dic objectForKey:@"ID"];
+                note.date = [dic objectForKey:@"CDate"];
+                note.content = [dic objectForKey:@"Content"];
                 [listData addObject:note];
-                
             }
+            [self.delegate findAllFinished:listData];
+        } else {
+            NSInteger resultCode = [resultCodeNumber integerValue];
+            NSNumber *resultCodeNumber = [NSNumber numberWithLong:resultCode];
+            NSString* message = [resultCodeNumber errorMessage];
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:message
+                                                                 forKey:NSLocalizedDescriptionKey];
+            NSError *err = [NSError errorWithDomain:@"DAO" code:resultCode userInfo:userInfo];
+            [self.delegate findAllFailed:err];
         }
         
-        sqlite3_finalize(statement);
-        sqlite3_close(db);
-        
-    }
-    return listData;
-}
-
-//按照主键查询数据方法
--(Note*) findById:(Note*)model
-{
+    } errorHandler:^(MKNetworkOperation *errorOp, NSError* err) {
+        NSError *error = [errorOp error];
+        [self.delegate createFailed:error];
+    }];
     
-    NSString *path = [self applicationDocumentsDirectoryFile];
+    [engine enqueueOperation:op];
     
-    if (sqlite3_open([path UTF8String], &db) != SQLITE_OK) {
-        sqlite3_close(db);
-        NSAssert(NO,@"数据库打开失败。");
-    } else {
-        
-        NSString *qsql = @"SELECT cdate,content FROM Note where cdate =?";
-        
-        sqlite3_stmt *statement;
-        //预处理过程
-        if (sqlite3_prepare_v2(db, [qsql UTF8String], -1, &statement, NULL) == SQLITE_OK) {
-            //准备参数
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-            NSString *nsdate = [dateFormatter stringFromDate:model.date];
-            //绑定参数开始
-            sqlite3_bind_text(statement, 1, [nsdate UTF8String], -1, NULL);
-            
-            //执行
-            if (sqlite3_step(statement) == SQLITE_ROW) {
-                char *cdate = (char *) sqlite3_column_text(statement, 0);
-                NSString *nscdate = [[NSString alloc] initWithUTF8String: cdate];
-                
-                char *content = (char *) sqlite3_column_text(statement, 1);
-                NSString * nscontent = [[NSString alloc] initWithUTF8String: content];
-                
-                Note* note = [[Note alloc] init];
-                note.date = [dateFormatter dateFromString:nscdate];
-                note.content = nscontent;
-                
-                sqlite3_finalize(statement);
-                sqlite3_close(db);
-                
-                return note;
-            }
-        }
-        
-        sqlite3_finalize(statement);
-        sqlite3_close(db);
-        
-    }
-    return nil;
 }
-
 
 @end

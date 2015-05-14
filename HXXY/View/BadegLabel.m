@@ -7,15 +7,33 @@
 //
 
 #import "BadegLabel.h"
-
+#import "globeResource.h"
 @implementation BadegLabel
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        _ViewTag=[globeResource sharedInstance].shareViewTag;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(themeNotification:) name:_ViewTag object:nil];
+        
+    }
+    return self;
 }
-*/
+
+- (void)badgeCount{
+    
+    [globeResource sharedInstance].cellBadegnum=[self.text intValue];
+}
+
+- (void)themeNotification:(NSNotification *)notification {
+    
+    [self badgeCount];
+}
+
+- (void)dealloc {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:_ViewTag object:nil];
+}
 
 @end

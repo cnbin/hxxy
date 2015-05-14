@@ -8,6 +8,11 @@
 
 #import "HXBaseViewController.h"
 
-@interface HuoDongTouPiaoViewController : HXBaseViewController
+@interface HuoDongTouPiaoViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate>
+{
+    UITableView * _tableView;
+    UIScrollView *_scrollView;
+}
+
 
 @end

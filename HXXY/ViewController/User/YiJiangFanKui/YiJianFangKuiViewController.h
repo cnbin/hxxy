@@ -8,6 +8,7 @@
 
 #import "HXBaseViewController.h"
 
-@interface YiJianFangKuiViewController : HXBaseViewController
-
+@interface YiJianFangKuiViewController : HXBaseViewController<UITextViewDelegate>
+@property (nonatomic,strong) UILabel * labelPlaceholder;
+@property (nonatomic,strong) UITextView *contentTextView;
 @end

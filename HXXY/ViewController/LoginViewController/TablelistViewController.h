@@ -7,10 +7,25 @@
 //
 #import <UIKit/UIKit.h>
 #import "HXBaseViewController.h"
+#import "CommonWebViewController.h"
 
-@interface TablelistViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate>
+@interface TablelistViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate,CommonWebViewControllerDelegate>
 {
     UITableView * _tableView;
     UIScrollView *_scrollView;
+  
 }
+
+@property (nonatomic,assign) BOOL isLoginTag;
+@property (nonatomic,strong) NSString * kvcTitle;
+@property (nonatomic,strong) NSString * kvcUrl;
+@property (nonatomic,strong) UIImageView * imageView;
+
+@property (nonatomic,strong) UILabel * labelText;
+@property (nonatomic,strong) NSMutableArray * data;
+@property (nonatomic,assign) BOOL isSubstract;
+
+@property (nonatomic,strong) NSString * indexInstance;
+
+
 @end

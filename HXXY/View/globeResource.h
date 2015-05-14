@@ -10,4 +10,21 @@
 
 @interface globeResource : NSObject
 
+#define selectedCellIndex [NSString stringWithFormat:@"%d",indexPath.row]
+#define SystemThemeColor [UIColor colorWithRed:0 green:199.0f/255.0f blue:140.0f/255.0f alpha:1.0f]
+
+@property (nonatomic,copy)   NSString * shareViewTag;
+@property (nonatomic,assign) NSInteger sum;
+@property (nonatomic,assign) NSInteger cellBadegnum;
+
+@property (nonatomic,copy) NSString * name;
+@property (nonatomic,assign)BOOL value;
+
+@property (nonatomic,assign) NSInteger babyImageIndex;
+
++ (instancetype)sharedInstance;
+
+- (void)setBool:(BOOL)value forKey:(NSString *)defaultName;
+- (BOOL)boolForKey:(NSString *)defaultName;
+
 @end

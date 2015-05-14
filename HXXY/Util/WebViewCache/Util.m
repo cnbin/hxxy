@@ -2,8 +2,8 @@
 //  Util.m
 //  LocalCache
 //
-//  Created by tan on 13-2-6.
-//  Copyright (c) 2013年 adways. All rights reserved.
+//  Created by Apple on 11/18/14.
+//  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 //
 
 #import "Util.h"
@@ -17,7 +17,8 @@
     
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
     
-    CC_SHA1(data.bytes, data.length, digest);
+    //data改为(int)data
+    CC_SHA1(data.bytes, (int)data.length, digest);
     
     NSMutableString* output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
     
@@ -31,7 +32,8 @@
 + (NSString *)md5Hash:(NSString *)str {
     const char *cStr = [str UTF8String];
     unsigned char result[16];
-    CC_MD5( cStr, strlen(cStr), result );
+    //strlen改为(int)strlen
+    CC_MD5( cStr, (int)strlen(cStr), result );
     NSString *md5Result = [NSString stringWithFormat:
                            @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                            result[0], result[1], result[2], result[3],

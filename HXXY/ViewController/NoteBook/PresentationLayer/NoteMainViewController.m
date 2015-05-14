@@ -17,24 +17,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
-    self.view.backgroundColor = [UIColor whiteColor];
-    self.navigation.leftImage  = [UIImage imageNamed:@"nav_backbtn.png"];
-    //右边导航图片设置为耳机图片
-    
-    self.navigation.title = @"备忘录";
-    self.navigation.navigaionBackColor = [UIColor colorWithRed:124.0f/255.0f green:252.0f/255.0f blue:0.0f/255.0f alpha:1.0f];
-    
-   _navMainButton= [[UIButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width-60, self.navigation.frame.size.height/2.5, 60, 30)];
+    self.title=@"备忘录";
+    _navMainButton= [[UIButton alloc] initWithFrame:CGRectMake(250, 10, 60, 30)];
     //UIControlStateNormal表示正常显示
     [_navMainButton setTitle:@"添加" forState:UIControlStateNormal];
     [_navMainButton addTarget:self action:@selector(onclickAdd:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:_navMainButton];
+    [self.navigationController.navigationBar addSubview:_navMainButton];
     
     
-    _tableView=[[UITableView alloc]initWithFrame:CGRectMake(0,self.navigation.frame.size.height+self.navigation.frame.origin.y, self.view.frame.size.width,440)];
+    _tableView=[[UITableView alloc]initWithFrame:CGRectMake(0,0, self.view.frame.size.width,600)];
 
     _tableView.delegate =self;
     _tableView.dataSource = self;
@@ -42,7 +33,7 @@
     [self.view addSubview:_tableView];
     
     self.bl = [[NoteBL alloc] init];
-    self.listData = [self.bl findAll];
+    //self.listData = [self.bl findAll];
     
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -54,8 +45,7 @@
     
 }
 -(void)onclickAdd:(UIButton *)button{
-    [self presentViewController:[[NoteAddViewController alloc] init] animated:YES completion:nil];
-    
+      [self presentViewController:[[UINavigationController alloc] initWithRootViewController:[[NoteAddViewController alloc] init]] animated:YES completion:nil];
 }
 
 #pragma mark - Table View
@@ -82,7 +72,12 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle  reuseIdentifier:CellIdentifier];
         Note  *note = self.listData[indexPath.row];
         cell.textLabel.text = note.content;
-        cell.detailTextLabel.text = [note.date description];
+        NSDateFormatter *df = [[NSDateFormatter alloc] init];
+        [df setDateFormat:@"yyyy-MM-dd"];
+        // cell.detailTextLabel.text = [note.date description];
+        cell.detailTextLabel.text = [df stringFromDate:note.date];
+
+
     }
     return cell;
 }

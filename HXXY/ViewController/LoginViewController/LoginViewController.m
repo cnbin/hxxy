@@ -8,6 +8,11 @@
 #import "Toast+UIView.h"
 #import "LoginViewController.h"
 #import "AFNetworking.h"
+#import "LoginViewController.h"
+#import "ForgetPasswordViewController.h"
+#import "NSString+URLEncoding.h"
+#import "NSNumber+Message.h"
+
 @interface LoginViewController ()
 
 @end
@@ -16,65 +21,86 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
-    self.view.backgroundColor = [UIColor whiteColor];
-    //左边导航图片设置为空
-    self.navigation.leftImage  =nil;// [UIImage imageNamed:@"nav_backbtn.png"];
-    //右边导航图片设置为耳机图片
-    self.navigation.rightImage =nil;
-    //    self.navigation.headerImage = [UIImage imageNamed:@"nav_canadaicon.png"];
-    //设置标题
-    self.navigation.title = @"登录";
-    self.navigation.navigaionBackColor = [UIColor colorWithRed:124.0f/255.0f green:252.0f/255.0f blue:0.0f/255.0f alpha:1.0f];
+    self.title=@"登录";
+    [self initView];
+    _dict =[[NSMutableDictionary alloc]init];
+}
+
+-(void)initView{
     
-    UILabel *phonenum=[[UILabel alloc]initWithFrame:CGRectMake(20, self.navigation.frame.size.height+self.navigation.frame.origin.y+30, 80, 30)];
-    phonenum.text=@"手机号码:";
-    [self.view addSubview:phonenum];
+    UIImageView *Headerview=[[UIImageView alloc]initWithFrame:CGRectMake(130, 75, 60, 60)];
+    Headerview.image=[UIImage imageNamed:@"10"];
+    [self.view addSubview:Headerview];
     
-    phonenumText=[[UITextField alloc]initWithFrame:CGRectMake(120, phonenum.frame.origin.y, 170, 30)];
-    phonenumText.borderStyle=UITextBorderStyleRoundedRect;
-    phonenumText.placeholder=@"请输入你的手机号码";
+    UILabel *label= [[UILabel alloc]initWithFrame:CGRectMake(100, 140, 160, 30)];
+    label.text=@"华讯星园欢迎你!";
+    [self.view addSubview:label];
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGColorRef colorref = CGColorCreate(colorSpace,(CGFloat[]){ 0, 199/255.0f, 140/255.0f, 1 });
+    
+    phonenumText=[[UITextField alloc]initWithFrame:CGRectMake(20,180, 280, 30)];
+    phonenumText.placeholder=@" 请输入手机号";
+    phonenumText.keyboardType = UIKeyboardTypeNumberPad;
+    phonenumText.returnKeyType=UIReturnKeyDone;
+    phonenumText.clearButtonMode = UITextFieldViewModeWhileEditing;
+    [phonenumText.layer setBorderWidth:1.0];
+    [phonenumText.layer setCornerRadius:8.0];
+    [phonenumText.layer setBorderColor:colorref];
     [self.view addSubview:phonenumText];
-    
-    
-    UILabel *password =[[UILabel alloc]initWithFrame:CGRectMake(20, phonenum.frame.size.height+phonenum.frame.origin.y+15, 80, 30)];
-    password.text=@"验证码:";
-    [self.view addSubview:password];
-    
-    passwordText=[[UITextField alloc]initWithFrame:CGRectMake(120,password.frame.origin.y,100, 30)];
-    passwordText.borderStyle=UITextBorderStyleRoundedRect;
-    passwordText.placeholder=@"请输入验证码";
+
+    passwordText=[[UITextField alloc]initWithFrame:CGRectMake(20,225,235, 30)];
+    passwordText.placeholder=@" 请输入动态密码";
+    passwordText.textAlignment =NSTextAlignmentLeft;
+    passwordText.returnKeyType=UIReturnKeyDone;
+    passwordText.clearButtonMode = UITextFieldViewModeWhileEditing;
+    [passwordText.layer setBorderWidth:1.0];
+    [passwordText.layer setCornerRadius:8.0];
+    [passwordText.layer setBorderColor:colorref];
     [self.view addSubview:passwordText];
     
-    UIImageView *codeImage = [[UIImageView alloc] initWithFrame:CGRectMake(passwordText.frame.size.width+passwordText.frame.origin.x+10,password.frame.origin.y, 70, 30)];
+    pswText =[[UITextField alloc]initWithFrame:CGRectMake(20,270,280, 30)];
+    pswText.placeholder=@" 请输入密码";
+    pswText.textAlignment =NSTextAlignmentLeft;
+    pswText.returnKeyType=UIReturnKeyDone;
+    pswText.clearButtonMode = UITextFieldViewModeWhileEditing;
+    [pswText.layer setBorderWidth:1.0];
+    [pswText.layer setCornerRadius:8.0];
+    [pswText.layer setBorderColor:colorref];
+    [self.view addSubview:pswText];
+    
+    UIImageView *codeImage = [[UIImageView alloc] initWithFrame:CGRectMake(260, 225, 40, 30)];
     codeImage.userInteractionEnabled = YES;
-    [self getVCCode:codeImage];
+    
+    dispatch_queue_t mainQueue = dispatch_get_main_queue();
+    dispatch_async(mainQueue, ^(void) {
+        [self getVCCode:codeImage];
+    });
+    
     [codeImage addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewEvent:)]];
     [self.view addSubview:codeImage];
     
     loginButton=[UIButton buttonWithType:UIButtonTypeRoundedRect];
-    loginButton.frame=CGRectMake(20, passwordText.frame.origin.y+passwordText.frame.size.height+20, 280, 30);
+    loginButton.frame=CGRectMake(20, pswText.frame.origin.y+pswText.frame.size.height+20, 280, 30);
     [loginButton setTitle:@"登录" forState:UIControlStateNormal];
-    [loginButton setTintColor:[UIColor whiteColor]];
-    [loginButton setBackgroundColor:[UIColor colorWithRed:192.0f/255.0f green:37.0f/255.0f blue:62.0f/255.0f alpha:1.0f]];
+    [loginButton setBackgroundColor:SystemThemeColor];
+    [loginButton.layer setBorderWidth:1.0];
+    [loginButton.layer setBorderColor:colorref];//边框颜色;
+
     [loginButton.layer setMasksToBounds:YES];
     [loginButton.layer setCornerRadius:10.0];
+    loginButton.tag=1;
     [loginButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:loginButton];
     
-    cancleButton=[UIButton buttonWithType:UIButtonTypeRoundedRect];
-    cancleButton.frame=CGRectMake(20, loginButton.frame.origin.y+loginButton.frame.size.height+10, 280, 30);
-    [cancleButton setTitle:@"取消" forState:UIControlStateNormal];
-    [cancleButton setTintColor:[UIColor whiteColor]];
-    [cancleButton.layer setMasksToBounds:YES];
-    [cancleButton.layer setCornerRadius:10.0];
-    [cancleButton setBackgroundColor:[UIColor colorWithRed:192.0f/255.0f green:37.0f/255.0f blue:62.0f/255.0f alpha:1.0f]];
-    //[loginButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:cancleButton];
-   
+    forgetButton=[UIButton buttonWithType:UIButtonTypeRoundedRect];
+    forgetButton.frame=CGRectMake(20, loginButton.frame.size.height+loginButton.frame.origin.y+5, 60, 30);
+    [forgetButton setTitle:@"忘记密码?" forState:UIControlStateNormal];
+    forgetButton.titleLabel.font=[UIFont fontWithName:@"Helvetica" size:13];;
+    [forgetButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [forgetButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+    forgetButton.tag=2;
+    [self.view addSubview:forgetButton];
 }
-
 
 #pragma mark 点击验证码图片执行的操作
 -(void)imageViewEvent:(UITapGestureRecognizer *)gesture{
@@ -111,45 +137,192 @@
     return NO;
 }
 
-
 -(void)buttonAction:(UIButton *)button{
-    if (phonenumText.text.length == 0) {
-        [self.view makeToast:@"用户名不能为空。" duration:1.0 position:@"center"];
-        return;
+    switch (button.tag) {
+        case 1:
+        {
+            if (phonenumText.text.length == 0) {
+                [self.view makeToast:@"用户名不能为空。" duration:1.0 position:@"center"];
+                return;
+            }
+            if (![phonenumText.text isEqual:@"13580000000"]) {
+                [self.view makeToast:@"请输入正确用户名。" duration:1.0 position:@"center"];
+                return;
+                
+            }
+            if (passwordText.text.length == 0) {
+                [self.view makeToast:@"密码不能为空。" duration:1.0 position:@"center"];
+                return;
+            }
+            
+            if (![pswText.text isEqualToString:@"000000"]) {
+                [self.view makeToast:@"请输入正确密码。" duration:1.0 position:@"center"];
+                return;
+            }
+            
+            if (![self checkCode:passwordText.text]) {
+                [self.view makeToast:@"验证码错误，请重新输入！" duration:1.0 position:@"center"];
+                return;
+            }
+            
+            [self startRequest];
+            
+        }
+            break;
+        case 2:
+        {
+            NSLog(@"请注册");
+            ForgetPasswordViewController * forgetPasswordViewController=[[ForgetPasswordViewController alloc]init];
+            [self presentViewController: forgetPasswordViewController animated:YES completion:nil];
+        }
+            
+        default:
+            break;
     }
-    if (passwordText.text.length == 0) {
-        [self.view makeToast:@"密码不能为空。" duration:1.0 position:@"center"];
-        return;
-    }
-    [self.view makeToast:@"登陆成功" duration:1.0 position:@"center"];
-    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(toastEnd:) userInfo:nil repeats:NO];
-}
-
- -(void)toastEnd:(NSTimer *)timer
- {
-     // 注销计时器
- [timer invalidate];
- TablelistViewController *tablelistViewController=[[TablelistViewController alloc]init];
- [self.navigationController pushViewController:tablelistViewController animated:YES];
- 
- }
- 
- 
-
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 /*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
+ * 开始请求Web Service
  */
+-(void)startRequest
+{
+    
+    //post请求
+//    NSString *strURL = [[NSString alloc] initWithFormat:@"http://www.rjt0663.com/RjtSchool/WebService/User_Login.asmx/login"];
+//    
+//    NSURL *url = [NSURL URLWithString:[strURL URLEncodedString]];
+//    
+//    NSString *post = [NSString stringWithFormat:@"number=%@&psw=%@",phonenumText.text,pswText.text];
+//    
+//    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding];
+//    
+//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+//    [request setHTTPMethod:@"POST"];
+//    [request setHTTPBody:postData];
+//    
+//    NSURLConnection *connection = [[NSURLConnection alloc]
+//                                   initWithRequest:request delegate:self];
+//    if (connection) {
+//        
+//    }
+    
+    
+    //get请求
+//    NSString *strURL = [[NSString alloc] initWithFormat:@"http://www.rjt0663.com/RjtSchool/WebService/User_Login.asmx/login?number=%@&psw=%@",phonenumText.text,pswText.text];
+//    NSURL *url = [NSURL URLWithString:[strURL URLEncodedString]];
+//    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+//    
+//    NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+//    if (connection) {
+//        
+//    }
+    
+    NSString *strURL = [[NSString alloc] initWithFormat:@"http://www.rjt0663.com/RjtSchool/WebService/User_Login.asmx"];
+    NSURL *url = [NSURL URLWithString:[strURL URLEncodedString]];
+    
+    NSString * envelopeText = [NSString stringWithFormat:@"<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+    " <soap:Body>"
+    " <login xmlns=\"http://www.rjt0663.com/\">"
+    " <number>%@</number>"
+    " <psw>%@</psw>"
+    " </login>"
+    " </soap:Body>"
+    " </soap:Envelope>",phonenumText.text,pswText.text];
+    
+    NSData *envelope = [envelopeText dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setHTTPBody:envelope];
+    [request setValue:@"text/xml; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:[NSString stringWithFormat:@"%d", [envelope length]] forHTTPHeaderField:@"Content-Length"];
+    
+    NSURLConnection *connection = [[NSURLConnection alloc]
+                                   initWithRequest:request delegate:self];
+    
+    
+    if (connection) {
+        
+    }
+
+}
+
+- (void)parserDidStartDocument:(NSXMLParser *)parser {
+    //     NSLog(@"开始解析文档");
+}
+
+- (void)parserDidEndDocument:(NSXMLParser *)parser{
+    //      NSLog(@"结束解析文档");
+}
+
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
+    
+    //把elementName 赋值给 成员变量 currentTagName
+    _currentTagName  = elementName ;
+}
+
+-(void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string{
+    string  = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([string isEqualToString:@""]) {
+        return;
+    }
+    
+//    if([_currentTagName isEqualToString:@"string"])
+//    {
+//        [_dict setObject:string forKey:@"string"];
+//    }
+//    
+    if([_currentTagName isEqualToString:@"loginResult"])
+    {
+        [_dict setObject:string forKey:@"loginResult"];
+    }
+    
+}
+
+#pragma mark- NSURLConnection 回调方法
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    
+    NSXMLParser *parser = [[NSXMLParser alloc] initWithData:data];
+    parser.delegate = self;
+    [parser parse];
+   }
+
+-(void) connection:(NSURLConnection *)connection didFailWithError: (NSError *)error {
+    
+    NSLog(@"%@",[error localizedDescription]);
+}
+
+- (void) connectionDidFinishLoading: (NSURLConnection*) connection {
+//     NSLog(@"请求完成...");
+//     NSLog(@"string %@",[_dict objectForKey:@"string"]);
+//    if ([[_dict objectForKey:@"string"]isEqualToString:@"1"]) {
+//        
+//        [self.view makeToast:@"登陆成功" duration:1.0 position:@"center"];
+//        double delayInSeconds = 1.0;
+//        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+//        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+//            [self.delegate LoginViewController:self];
+//        });
+//    }
+    
+         NSLog(@"请求完成...");
+         NSLog(@"loginResult %@",[_dict objectForKey:@"loginResult"]);
+        if ([[_dict objectForKey:@"loginResult"]isEqualToString:@"1"]) {
+    
+            [self.view makeToast:@"登陆成功" duration:1.0 position:@"center"];
+            double delayInSeconds = 1.0;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                [self.delegate LoginViewController:self];
+            });
+        }
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+}
 
 @end
+

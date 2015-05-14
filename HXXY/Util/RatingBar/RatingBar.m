@@ -2,13 +2,8 @@
 //  RatingBar.m
 //  MyRatingBar
 //
-//  Created by Leaf on 14-8-28.
-//  Copyright (c) 2014年 Leaf. All rights reserved.
-//
-
-// 版权属于原作者
-// http://code4app.com (cn) http://code4app.net (en)
-// 发布代码于最专业的源码分享网站: Code4App.com
+//  Created by Apple on 11/18/14.
+//  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 
 #import "RatingBar.h"
 #define ZOOM 0.8f
@@ -22,9 +17,10 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
+    //在子类中重载initWithFrame方法，必须先调用父类的initWithFrame方法
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code
+        
         self.backgroundColor = [UIColor whiteColor];
         self.bottomView = [[UIView alloc] initWithFrame:self.bounds];
         self.topView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -37,16 +33,20 @@
         self.bottomView.userInteractionEnabled = NO;
         self.userInteractionEnabled = YES;
         
+        //点一下
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
+        //拖移，慢速移动
         UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
         [self addGestureRecognizer:tap];
         [self addGestureRecognizer:pan];
         
-        //
+  
         CGFloat width = frame.size.width/7.0;
         self.starWidth = width;
+        //i表示多少个星星,改变星星数目通过改变i
         for(int i = 0;i<5;i++){
             UIImageView *img = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width*ZOOM, width*ZOOM)];
+           // center属性指的是这个ImageView的中间点。
             img.center = CGPointMake((i+1.5)*width, frame.size.height/2);
             img.image = [UIImage imageNamed:@"bt_star_a"];
             [self.bottomView addSubview:img];
@@ -60,6 +60,7 @@
     }
     return self;
 }
+//设置set方法,View都设置为白色
 -(void)setViewColor:(UIColor *)backgroundColor{
     if(_viewColor!=backgroundColor){
         self.backgroundColor = backgroundColor;
@@ -67,13 +68,16 @@
         self.bottomView.backgroundColor = backgroundColor;
     }
 }
+//设置set方法
 -(void)setStarNumber:(NSInteger)starNumber{
     if(_starNumber!=starNumber){
         _starNumber = starNumber;
         self.topView.frame = CGRectMake(0, 0, self.starWidth*(starNumber+1), self.bounds.size.height);
     }
 }
+//tap事件
 -(void)tap:(UITapGestureRecognizer *)gesture{
+       
     if(self.enable){
         CGPoint point = [gesture locationInView:self];
         NSInteger count = (int)(point.x/self.starWidth)+1;
@@ -84,7 +88,9 @@
             _starNumber = count-1;
         }
     }
+    NSLog(@"the tap_starNumber星星数目 is %ld",(long)_starNumber);
 }
+//pan事件
 -(void)pan:(UIPanGestureRecognizer *)gesture{
     if(self.enable){
         CGPoint point = [gesture locationInView:self];
@@ -92,16 +98,11 @@
         if(count>=0 && count<=5 && _starNumber!=count){
             self.topView.frame = CGRectMake(0, 0, self.starWidth*(count+1), self.bounds.size.height);
             _starNumber = count;
+    
         }
     }
+    NSLog(@"the pan_starNumber is %ld",(long)_starNumber);
 }
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
+
 
 @end

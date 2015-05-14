@@ -11,6 +11,9 @@
 @interface UserViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource>
 {
     UITableView *_tableView;
+    UIScrollView *_scrollView;
 }
 
+@property (nonatomic,strong) NSArray *labelTextArray;
+@property (nonatomic,strong) UIButton *imageButtonitemView;
 @end

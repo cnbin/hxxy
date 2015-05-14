@@ -13,8 +13,6 @@
 #define MainScreenHeight [UIScreen mainScreen].bounds.size.height
 #define MainScreenWidth [UIScreen mainScreen].bounds.size.width
 
-
-
 @interface PanNavigationController ()<UIGestureRecognizerDelegate> {
     CGPoint startPoint;
 
@@ -22,9 +20,7 @@
 }
 
 @property (nonatomic, strong) UIView *backGroundView;
-
 @property (nonatomic, strong) NSMutableArray *screenShotList;
-
 @property (nonatomic, assign) BOOL isMoving;
 
 @end
@@ -33,17 +29,6 @@ static CGFloat offset_float = 0.65;// 拉伸参数
 static CGFloat min_distance = 100;// 最小回弹距离
 
 @implementation PanNavigationController
-
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 
 - (NSMutableArray *)screenShotList {
     if (!_screenShotList) {
@@ -59,11 +44,11 @@ static CGFloat min_distance = 100;// 最小回弹距离
                                                                                  action:@selector(paningGestureReceive:)];
     [recognizer delaysTouchesBegan];
     [self.view addGestureRecognizer:recognizer];
+    
 }
 
 // override the pop method
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated {
-    // 有动画用自己的动画
     if (animated) {
         [self popAnimation];
         return nil;

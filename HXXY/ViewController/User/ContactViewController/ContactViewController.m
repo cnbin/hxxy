@@ -35,6 +35,7 @@
     [super viewDidLoad];
     self.view.backgroundColor=[UIColor whiteColor];
     self.title=@"联系方式";
+    [self initView];
 }
 
 -(void)initView{
@@ -109,6 +110,7 @@
     [self.view addSubview:_zfaxLabel];
     [self.view addSubview:_zmailboxLabel];
 }
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

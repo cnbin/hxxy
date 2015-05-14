@@ -8,6 +8,10 @@
 
 #import "HXBaseViewController.h"
 
-@interface TouPiaoJieGuoViewController : HXBaseViewController
+@interface TouPiaoJieGuoViewController : HXBaseViewController<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate>
+{
+    UITableView * _tableView;
+    UIScrollView *_scrollView;
+}
 
 @end

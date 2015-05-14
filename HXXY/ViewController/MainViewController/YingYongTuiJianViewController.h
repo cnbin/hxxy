@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 华讯网络投资有限公司. All rights reserved.
 //
 
-#import "HXBaseViewController.h"
+#import "TablegGroupViewController.h"
 
-@interface YingYongTuiJianViewController : HXBaseViewController
-
+@interface YingYongTuiJianViewController : TablegGroupViewController
 @end

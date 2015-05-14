@@ -7,7 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Reachability.h"
+#import "Reachability.h"
+#import <CoreLocation/CoreLocation.h>
+#import <CoreLocation/CLLocationManagerDelegate.h>
 
-@interface IntroduceViewController : UIViewController
+@class IntroduceViewController;
+@protocol IntroduceViewControllerDelegate <NSObject>
+
+-(void)IntroduceViewController:(IntroduceViewController *)introduceViewController;
+
+@end
+
+@interface IntroduceViewController : UIViewController<UIScrollViewDelegate,CLLocationManagerDelegate>
+@property (weak,nonatomic) id<IntroduceViewControllerDelegate> delegate;
+@property(nonatomic, strong) CLLocationManager *locationManager;
 
 @end

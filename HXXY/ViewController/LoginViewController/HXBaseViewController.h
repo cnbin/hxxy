@@ -7,8 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "HXNavigationView.h"
-@interface HXBaseViewController : UIViewController<HXNavigationViewDelegate>
 
-@property (nonatomic,strong) HXNavigationView * navigation;
+@interface HXBaseViewController : UIViewController
+
 @end

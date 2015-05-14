@@ -224,17 +224,13 @@ static const NSString * CSToastActivityViewKey  = @"CSToastActivityViewKey";
     NSLog(@"Warning: Invalid position for toast.");
     return [self centerPointForPosition:CSToastDefaultPosition withToast:toast];
 }
-
+//修改为新的方法
 - (CGSize)sizeForString:(NSString *)string font:(UIFont *)font constrainedToSize:(CGSize)constrainedSize lineBreakMode:(NSLineBreakMode)lineBreakMode {
-    if ([string respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)]) {
         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
         paragraphStyle.lineBreakMode = lineBreakMode;
         NSDictionary *attributes = @{NSFontAttributeName:font, NSParagraphStyleAttributeName:paragraphStyle};
         CGRect boundingRect = [string boundingRectWithSize:constrainedSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:nil];
         return CGSizeMake(ceilf(boundingRect.size.width), ceilf(boundingRect.size.height));
-    }
-
-    return [string sizeWithFont:font constrainedToSize:constrainedSize lineBreakMode:lineBreakMode];
 }
 
 - (UIView *)viewForMessage:(NSString *)message title:(NSString *)title image:(UIImage *)image {

@@ -2,8 +2,8 @@
 //  CustomURLCache.m
 //  LocalCache
 //
-//  Created by tan on 13-2-12.
-//  Copyright (c) 2013年 adways. All rights reserved.
+//  Created by Apple on 11/18/14.
+//  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 //
 
 #import "CustomURLCache.h"
@@ -34,17 +34,14 @@
         else
             self.diskPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
         
+        //创建一个可变词典初始指定它的长度为0.，动态的添加数据如果超过0这个词典长度会自动增加，所以不用担心数组越界。
         self.responseDictionary = [NSMutableDictionary dictionaryWithCapacity:0];
     }
     return self;
 }
 
-- (void)dealloc {
-    [_diskPath release];
-    [_responseDictionary release];
-    [super dealloc];
-}
-
+#pragma mark - NSURLCache 父类方法
+//如果对应的NSURLRequest没有cached的response那么返回n
 - (NSCachedURLResponse *)cachedResponseForRequest:(NSURLRequest *)request {
     if ([request.HTTPMethod compare:@"GET"] != NSOrderedSame) {
         return [super cachedResponseForRequest:request];
@@ -53,15 +50,16 @@
     return [self dataFromRequest:request];
 }
 
+//移除所有的cache
 - (void)removeAllCachedResponses {
     [super removeAllCachedResponses];
     
     [self deleteCacheFolder];
 }
 
+//移除特定NSURLRequest的cache
 - (void)removeCachedResponseForRequest:(NSURLRequest *)request {
     [super removeCachedResponseForRequest:request];
-    
     NSString *url = request.URL.absoluteString;
     NSString *fileName = [self cacheRequestFileName:url];
     NSString *otherInfoFileName = [self cacheRequestOtherInfoFileName:url];
@@ -72,38 +70,9 @@
     [fileManager removeItemAtPath:otherInfoPath error:nil];
 }
 
+- (void)dealloc {
+}
 #pragma mark - custom url cache
-
-- (NSString *)cacheFolder {
-    return @"URLCACHE";
-}
-
-- (void)deleteCacheFolder {
-    NSString *path = [NSString stringWithFormat:@"%@/%@", self.diskPath, [self cacheFolder]];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:path error:nil];
-}
-
-- (NSString *)cacheFilePath:(NSString *)file {
-    NSString *path = [NSString stringWithFormat:@"%@/%@", self.diskPath, [self cacheFolder]];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    BOOL isDir;
-    if ([fileManager fileExistsAtPath:path isDirectory:&isDir] && isDir) {
-        
-    } else {
-        [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
-    }
-    return [NSString stringWithFormat:@"%@/%@", path, file];
-}
-
-- (NSString *)cacheRequestFileName:(NSString *)requestUrl {
-    return [Util md5Hash:requestUrl];
-}
-
-- (NSString *)cacheRequestOtherInfoFileName:(NSString *)requestUrl {
-    return [Util md5Hash:[NSString stringWithFormat:@"%@-otherInfo", requestUrl]];
-}
-
 - (NSCachedURLResponse *)dataFromRequest:(NSURLRequest *)request {
     NSString *url = request.URL.absoluteString;
     NSString *fileName = [self cacheRequestFileName:url];
@@ -125,15 +94,15 @@
         }
         
         if (expire == false) {
-            NSLog(@"data from cache ...");
+//            NSLog(@"data from cache ...");
             
             NSData *data = [NSData dataWithContentsOfFile:filePath];
             NSURLResponse *response = [[NSURLResponse alloc] initWithURL:request.URL
                                                                 MIMEType:[otherInfo objectForKey:@"MIMEType"]
                                                    expectedContentLength:data.length
                                                         textEncodingName:[otherInfo objectForKey:@"textEncodingName"]];
-            NSCachedURLResponse *cachedResponse = [[[NSCachedURLResponse alloc] initWithResponse:response data:data] autorelease];
-            [response release];
+            NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data] ;
+          
             return cachedResponse;
         } else {
             NSLog(@"cache expire ... ");
@@ -163,7 +132,7 @@
                     cachedResponse = nil;
                 }
                 
-                NSLog(@"cache url --- %@ ",url);
+             //   NSLog(@"cache url --- %@ ",url);
                 
                 //save to cache
                 NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]], @"time",
@@ -172,7 +141,7 @@
                 [dict writeToFile:otherInfoPath atomically:YES];
                 [data writeToFile:filePath atomically:YES];
                 
-                cachedResponse = [[[NSCachedURLResponse alloc] initWithResponse:response data:data] autorelease];
+                cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data];
             }
             
         }];
@@ -183,6 +152,37 @@
         
     }
     return nil;
+}
+- (NSString *)cacheFolder {
+    return @"URLCACHE";
+}
+
+- (void)deleteCacheFolder {
+    NSString *path = [NSString stringWithFormat:@"%@/%@", self.diskPath, [self cacheFolder]];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:path error:nil];
+}
+
+- (NSString *)cacheFilePath:(NSString *)file {
+    NSString *path = [NSString stringWithFormat:@"%@/%@", self.diskPath, [self cacheFolder]];
+//    NSLog(@"the path is %@",path);
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    BOOL isDir;
+    if ([fileManager fileExistsAtPath:path isDirectory:&isDir] && isDir) {
+        
+    } else {
+        [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    return [NSString stringWithFormat:@"%@/%@", path, file];
+}
+
+- (NSString *)cacheRequestFileName:(NSString *)requestUrl {
+    return [Util md5Hash:requestUrl];
+}
+
+- (NSString *)cacheRequestOtherInfoFileName:(NSString *)requestUrl {
+    return [Util md5Hash:[NSString stringWithFormat:@"%@-otherInfo", requestUrl]];
 }
 
 

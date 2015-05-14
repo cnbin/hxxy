@@ -7,7 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Note.h"
+#import "NoteDAO.h"
+#import "NoteBL.h"
+#import "NoteBLDelegate.h"
 
-@interface AddViewController : UIViewController
+@interface AddViewController : UIViewController<UITextViewDelegate,NoteBLDelegate>
+{
+    UITextView *_txtView;
+}
+
+//BL对象
+@property (nonatomic,strong) NoteBL *bl;
+
 
 @end

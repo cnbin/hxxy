@@ -6,17 +6,27 @@
 //  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "Note.h"
 #import "NoteDAO.h"
-@interface NoteBL : NSObject
+#import "NoteDAODelegate.h"
+#import "NoteBLDelegate.h"
+
+@interface NoteBL : NSObject <NoteDAODelegate>
+
+@property (weak, nonatomic) id <NoteBLDelegate> delegate;
+
+@property (strong, nonatomic) NoteDAO *dao;
+
 //插入Note方法
--(NSMutableArray*) createNote:(Note*)model;
+-(void) createNote:(Note*)model;
 
 //删除Note方法
--(NSMutableArray*) remove:(Note*)model;
+-(void) removeNote:(Note*)model;
 
-//查询所用数据方法
--(NSMutableArray*) findAll;
+//查询所有数据方法
+-(void) findAllNotes;
+
+//修改数据方法
+-(void) modifyNote:(Note*)model;
 
 @end

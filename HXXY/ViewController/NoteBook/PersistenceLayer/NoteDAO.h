@@ -6,37 +6,33 @@
 //  Copyright (c) 2014 华讯网络投资有限公司. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "NoteDAODelegate.h"
 #import "Note.h"
-#import "sqlite3.h"
+#import "NSString+URLEncoding.h"
+#import "NSNumber+Message.h"
+#import "MKNetworkKit.h"
 
-#define DBFILE_NAME @"NotesList.sqlite3"
-
+#define HOST_PATH @"/service/mynotes/webservice.php"
+#define HOST_NAME @"iosbook1.com"
 
 @interface NoteDAO : NSObject
-{
-    sqlite3 *db;
-}
 
-+ (NoteDAO*)sharedManager;
+//保存数据列表
+@property (nonatomic,strong) NSMutableArray* listData;
 
-- (NSString *)applicationDocumentsDirectoryFile;
-- (void)createEditableCopyOfDatabaseIfNeeded;
-
+@property (weak, nonatomic) id <NoteDAODelegate> delegate;
 
 //插入Note方法
--(int) create:(Note*)model;
+-(void) create:(Note*)model;
 
 //删除Note方法
--(int) remove:(Note*)model;
+-(void) remove:(Note*)model;
 
 //修改Note方法
--(int) modify:(Note*)model;
+-(void) modify:(Note*)model;
 
 //查询所有数据方法
--(NSMutableArray*) findAll;
+-(void) findAll;
 
-//按照主键查询数据方法
--(Note*) findById:(Note*)model;
 
 @end

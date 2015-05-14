@@ -8,6 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import "HXBaseViewController.h"
-@interface JingCaiShunJianViewController : HXBaseViewController
+
+@interface JingCaiShunJianViewController : HXBaseViewController<UICollectionViewDataSource,UICollectionViewDelegate>
+{
+    UIImageView *_imageView;
+    UILabel * _label;
+    NSString * identifier;
+}
+
+@property (nonatomic,strong)UIImageView * imageView;
+@property (nonatomic,strong)UILabel *label;
 
 @end
